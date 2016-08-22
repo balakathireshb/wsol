@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+                                         "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+ <session-factory name="">
+  <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+  <property name="hibernate.connection.password">imp1gerpassword</property>
+  <property name="hibernate.connection.url">jdbc:mysql://impiger.c6zaudwplcz9.ap-south-1.rds.amazonaws.com:3306/wsol</property>
+  <property name="hibernate.connection.username">awsuser</property>
+  <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+  <property name="hibernate.hbm2ddl.auto">validate</property>
+  <property name="hibernate.current_session_context_class">thread</property>
+  <property name="hibernate.transaction.auto_close_session">true</property>
+  <mapping resource="model/Queries.hbm.xml"/>
+  <mapping resource="model/Querytable.hbm.xml"/>
+  <mapping resource="model/WsolTables.hbm.xml"/>
+ </session-factory>
+</hibernate-configuration>

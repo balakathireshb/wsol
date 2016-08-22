@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Aug 21, 2016 7:59:02 PM by Hibernate Tools 5.1.0.Beta1 -->
+<hibernate-mapping>
+    <class name="model.Queries" table="queries" catalog="wsol" optimistic-lock="version">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <property name="appQueryId" type="java.lang.Integer">
+            <column name="app_query_id" />
+        </property>
+        <property name="appname" type="string">
+            <column name="appname" length="30" not-null="true" />
+        </property>
+        <property name="filename" type="string">
+            <column name="filename" length="200" />
+        </property>
+        <property name="query" type="string">
+            <column name="query" length="65535" />
+        </property>
+        <set name="querytables" table="querytable" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="queryid" not-null="true" />
+            </key>
+            <one-to-many class="model.Querytable" />
+        </set>
+    </class>
+</hibernate-mapping>
