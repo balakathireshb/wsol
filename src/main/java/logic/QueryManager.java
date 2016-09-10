@@ -1,5 +1,6 @@
 package logic;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -10,56 +11,69 @@ import java.util.SortedSet;
 import java.util.StringJoiner;
 import java.util.TreeSet;
 
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.query.Query;
+
 import model.*;
+import util.HibernateUtil;
 
 public class QueryManager {
+	private HashMap<Integer, QueryDetails> oracleQueryTableMap = new HashMap<Integer, QueryDetails>();
+	private HashMap<Integer, QueryDetails> mySQLQueryTableMap = new HashMap<Integer, QueryDetails>();
+	
 
-	public HashMap<Integer, HashSet<String>> getQueryTableDetails() {
-		HashMap<Integer, HashSet<String>> queryTableMap = new HashMap<Integer, HashSet<String>>();
-		QuerytableHome qth = new QuerytableHome();
-		List<Querytable> querytables = qth.findAll();
-		System.out.print(querytables.size());
-		for (Querytable querytable : querytables) {
-			Integer queryID = querytable.getQueryid();
-			String tableName = querytable.getTablename();
-			if (!queryTableMap.containsKey(queryID)) { // if not present add new
-														// set
-				queryTableMap.put(queryID, new HashSet<String>());
-			}
-			HashSet<String> tablesSet = queryTableMap.get(queryID);
-			tablesSet.add(tableName);
+	public  QueryManager() {
+		//1. Query the details
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		Transaction trans = session.beginTransaction();
+		List<QueryAppTableDb> queryAppTableDbs = new ArrayList<>();
+		try {
+
+			Query query = session.createQuery(
+					"select new model.QueryAppTableDb(q.id, q.appname, qt.tableid, qt.tablename, wt.databasename)"
+							+ " from Queries as q, Querytable as qt, WsolTables as wt"
+							+ " where q.id=qt.queryid and qt.tableid=wt.id");
+			queryAppTableDbs = query.list();
+			System.out.println("#of query table combinations:" + queryAppTableDbs.size());
+		} catch (Exception e) {
+			System.out.println(e);
+			trans.setRollbackOnly();
+		} finally {
+			trans.commit();
+			session.close();
 		}
 
-		System.out.println("#of queries with tables:"+queryTableMap.size());
-
-		return queryTableMap;
-
-	}
-
-	public static void main(String[] arg) {
-		QueryManager qm = new QueryManager();
-		HashMap<Integer, HashSet<String>> queryTableMap = qm.getQueryTableDetails();
-		SortedSet<String> tablesWithoutJoins = new TreeSet<String>();
-		StringJoiner graph = new StringJoiner("\n");
-		Iterator it = queryTableMap.keySet().iterator();
-		while (it.hasNext()) {
-			Integer queryId = (Integer) it.next();
-			HashSet<String> tableNames = queryTableMap.get(queryId);
-			if (tableNames.size() > 1) {// add to graph
-				Iterator<String> it1 = tableNames.iterator();
-				String joins = "{" + it1.next() + "}"; // first name
-				while (it1.hasNext()) { // if there are more
-					joins = "{" + joins + "--" + it1.next() + "}";
-
-				}
-				graph.add(joins);
-			} else { // just add to a set and show as list
-				tablesWithoutJoins.add(tableNames.iterator().next());
+		//2. Group based on query id for oracle and mysql
+		for (QueryAppTableDb queryAppTableDb : queryAppTableDbs) {
+			Integer queryId = queryAppTableDb.getQueryId();
+			HashMap<Integer, QueryDetails> queryTableMap;
+			if (queryAppTableDb.getDbName().equalsIgnoreCase("oracle")) {//oracle
+				queryTableMap = oracleQueryTableMap;
+			} else {//mysql
+				queryTableMap = mySQLQueryTableMap;
 			}
-
+			if (!queryTableMap.containsKey(queryId)) { // if not present add new
+				queryTableMap.put(queryId, new QueryDetails(queryId));
+			}
+			QueryDetails queryDetails= queryTableMap.get(queryId);
+			queryDetails.addQueryTableDetails(queryAppTableDb);
 		}
-		System.out.println(tablesWithoutJoins.toString());
-		System.out.println(graph.toString());
+		System.out.println("#of queries with oracle tables:" + oracleQueryTableMap.size());
+		System.out.println("#of queries with mysql tables:" + mySQLQueryTableMap.size());
 	}
+
+
+	public HashMap<Integer, QueryDetails> getOracleQueryTableMap() {
+		return oracleQueryTableMap;
+	}
+
+
+	public HashMap<Integer, QueryDetails> getMySQLQueryTableMap() {
+		return mySQLQueryTableMap;
+	}
+
+	
+	
 
 }

@@ -11,6 +11,7 @@ public class Querytable implements java.io.Serializable {
 	
 	private String querytype;
 	private String tablename;
+	private Integer tableid;
 
 	public Querytable() {
 	}
@@ -51,6 +52,14 @@ public class Querytable implements java.io.Serializable {
 
 	public void setTablename(String tablename) {
 		this.tablename = tablename;
+	}
+	
+	public Integer getTableid() {
+		return this.tableid;
+	}
+
+	public void setTableid(Integer tableid) {
+		this.tableid = tableid;
 	}
 
 }

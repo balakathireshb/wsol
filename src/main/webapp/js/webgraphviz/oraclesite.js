@@ -22,43 +22,16 @@ jQuery(document).ready(function() {
 	}); // error:function()
 
 	var graphString = jQuery("#graph_data_text").html().trim();
-	
+	var graphviz_data = jQuery("#graphviz_data");
 	var generate_btn = jQuery('#generate_btn');
 	var svg_div = jQuery('#graphviz_svg_div');
 	var graphPartOption = jQuery("#graph_part_id");
 
-	function getSubGraphArray() {
-		var graphArr = graphString.split(",");
-		//alert("Modification 2");
-		var optionVal = graphPartOption.val();
-		//alert(optionVal);
-		var subGraphArr;
-		if (optionVal == 1){
-			subGraphArr = graphArr.splice(0, 100);
-		} else if (optionVal == 2){
-			subGraphArr = graphArr.splice(100, 100);
-		} else if (optionVal == 3){
-			subGraphArr = graphArr.splice(200, 100);
-		} else if (optionVal == 4){
-			subGraphArr = graphArr.splice(300, graphArr.length - 300);
-		}  
-		//alert("graph length after splice:"+graphArr.length);
-		return subGraphArr;
-	}
-	function getGraphText() {
-		var subGraphArr = getSubGraphArray();
-		var graphPrefix = "graph G {\n" +
-				"rankdir=LR;";
-		var graph = subGraphArr.join(";\n");
-		var graphSuffix = "}";
-		var graphText = graphPrefix+graph+graphSuffix; 
-		//jQuery("#hiddenText").html(graphText);
-		return graphText;//subGraphArr;
-	}
+	
 	function UpdateGraphviz() {
-		// graphviz_data_textarea.val()
+		// 
 		svg_div.html("");
-		var data = getGraphText();
+		var data = graphviz_data.val();
 		// Generate the Visualization of the Graph into "svg".
 		var svg = Viz(data, "svg");
 		svg_div.html("<hr>" + svg);

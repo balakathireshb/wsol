@@ -15,7 +15,10 @@
             <column name="querytype" length="50" not-null="true" />
         </property>
         <property name="tablename" type="string">
-            <column name="tablename" length="100" not-null="true" />
+            <column name="tablename" length="50" not-null="true" />
+        </property>
+        <property name="tableid" type="java.lang.Integer">
+            <column name="tableid" not-null="true" />
         </property>
     </class>
 </hibernate-mapping>
